@@ -21,8 +21,10 @@ export class JwtMiddleware implements IMiddleware<Context, NextFunction> {
       try {
         const decoded = await this.jwtService.verify(token);
         ctx.user = decoded; // 保存用户信息到上下文
+        console.log(decoded);
         await next();
       } catch (err) {
+        console.log(err);
         ctx.status = 401;
         ctx.body = { success: false, message: '无效或过期的令牌' };
       }

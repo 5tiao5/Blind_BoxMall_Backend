@@ -11,6 +11,9 @@ export class UserService {
   async findByPhone(phone: number): Promise<UserEntity> {
     return await this.userRepo.findOneBy({ phone });
   }
+  async findById(id: number): Promise<UserEntity> {
+    return await this.userRepo.findOneBy({ id: id });
+  }
 
   async validatePassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
@@ -38,5 +41,9 @@ export class UserService {
     await this.userRepo.save(user);
 
     return { success: true, message: '注册成功' };
+  }
+  async updateUserInfo(id: number, updateData: Partial<UserEntity>) {
+    const result = await this.userRepo.update(id, updateData);
+    return result.affected === 1;
   }
 }

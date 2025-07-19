@@ -8,8 +8,10 @@ import * as jwt from '@midwayjs/jwt';
 import * as cors from '@koa/cors';
 // import { DefaultErrorFilter } from './filter/default.filter';
 // import { NotFoundFilter } from './filter/notfound.filter';
-import { ReportMiddleware } from './middleware/report.middleware';
+import * as oss from '@midwayjs/oss';
 import * as swagger from '@midwayjs/swagger';
+import * as upload from '@midwayjs/upload';
+//import { JwtMiddleware } from './middleware/jwt.middleware';
 
 @Configuration({
   imports: [
@@ -22,9 +24,11 @@ import * as swagger from '@midwayjs/swagger';
     },
     {
       component: swagger,
-      enabledEnvironment: ['local']
+      enabledEnvironment: ['local'],
     },
     jwt,
+    upload,
+    oss,
   ],
   importConfigs: [join(__dirname, './config')],
 })
@@ -34,7 +38,7 @@ export class MainConfiguration {
 
   async onReady() {
     // add middleware
-    this.app.useMiddleware([ReportMiddleware]);
+    // this.app.useMiddleware([JwtMiddleware]);
     this.app.use(
       cors({
         origin: '*',

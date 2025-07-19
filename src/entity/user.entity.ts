@@ -8,7 +8,7 @@ export class UserEntity {
   username: string;
   @Column()
   password: string;
-  @Column({ unique:  true})
+  @Column({ unique: true })
   phone: number;
   @Column({ nullable: true })
   introduction: string;
@@ -16,4 +16,6 @@ export class UserEntity {
   avatar: string;
   @Column({ default: 1000 })
   balance: number;
+  @Column({ nullable: true })
+  address: string;
 }
