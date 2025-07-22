@@ -1,7 +1,6 @@
 import { Controller, Inject, Post, Files } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import { OssService } from '../service/oss.service';
-import { JwtMiddleware } from '../middleware/jwt.middleware';
 import * as fs from 'fs';
 @Controller('/upload')
 export class UploadController {
@@ -12,7 +11,7 @@ export class UploadController {
   ossService: OssService;
 
   // 单文件上传示例（前端使用 multipart/form-data 传文件）
-  @Post('/image', { middleware: [JwtMiddleware] })
+  @Post('/image')
   async uploadImage(@Files('file') file: any) {
     if (!file || (Array.isArray(file) && file.length === 0)) {
       return { success: false, message: '未上传文件' };

@@ -3,6 +3,7 @@ import { UserEntity } from '../entity/user.entity';
 import { join } from 'path';
 import { ProductEntity } from '../entity/product.entity';
 import { BlindBoxEntity } from '../entity/blindbox.entity';
+import { OrderEntity } from '../entity/order.entity';
 
 export default {
   keys: '1752129728115_1214',
@@ -16,7 +17,7 @@ export default {
         database: './data/database.sqlite',
         synchronize: true,
         logging: true,
-        entities: [UserEntity, ProductEntity, BlindBoxEntity],
+        entities: [UserEntity, ProductEntity, BlindBoxEntity, OrderEntity],
       },
     },
   },

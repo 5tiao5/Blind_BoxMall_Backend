@@ -43,7 +43,7 @@ export class MainConfiguration {
       cors({
         origin: '*',
         credentials: true,
-        allowMethods: ['GET', 'POST', 'OPTIONS'],
+        allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
       })
     );
     // add filter

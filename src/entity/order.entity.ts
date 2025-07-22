@@ -25,15 +25,15 @@ export class OrderEntity {
   @JoinColumn()
   blindBox: BlindBoxEntity;
 
-  @Column({ default: 'unpaid' }) // unpaid, paid, canceled, arrived
-  status: string;
+  @Column({ default: 'pending' })
+  status: 'pending' | 'paid' | 'cancelled' | 'completed';
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createTime: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   payTime: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   arriveTime: Date;
 }
