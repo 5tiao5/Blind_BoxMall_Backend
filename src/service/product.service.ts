@@ -5,6 +5,7 @@ import { BlindBoxEntity } from '../entity/blindbox.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDTO } from '../dto/create-product.dto';
 import { UpdateProductDTO } from '../dto/update-product.dto';
+import { DrawPositionEntity } from '../entity/drawposition.entitiy';
 
 @Provide()
 export class ProductService {
@@ -13,7 +14,8 @@ export class ProductService {
 
   @InjectEntityModel(BlindBoxEntity)
   blindBoxRepo: Repository<BlindBoxEntity>;
-
+  @InjectEntityModel(DrawPositionEntity)
+  drawPositionRepo: Repository<DrawPositionEntity>;
   async createProductWithBlindBoxes(data: CreateProductDTO) {
     const product = new ProductEntity();
     product.name = data.name;
@@ -31,8 +33,23 @@ export class ProductService {
       box.serialNumber = item.serialNumber;
       return box;
     });
+    // 创建 DrawPositionEntity 并赋值到 product.drawPositions 上
+    const drawPositions = data.blindBoxItems.map((item, index) => {
+      const drawPosition = new DrawPositionEntity();
+      drawPosition.product = product; // 直接将商品与 DrawPosition 关联
+      drawPosition.product_id = product.id; // 关联商品ID
+      drawPosition.boxIndex = index; // 当前是第几个盲盒（序号）
+      drawPosition.isDrawn = false; // 初始状态：未被抽中
+      return drawPosition;
+    });
+    // 将 drawPositions 赋值给 product.drawPositions
+    product.drawPositions = drawPositions;
+    // 保存商品及盲盒项
+    const savedProduct = await this.productRepo.save(product);
+    // 批量保存 DrawPositionEntity
+    await this.drawPositionRepo.save(drawPositions);
 
-    return await this.productRepo.save(product);
+    return savedProduct;
   }
   async updateProduct(dto: UpdateProductDTO) {
     console.log('DTO:', dto);
@@ -57,7 +74,6 @@ export class ProductService {
     if (dto.description !== undefined) product.description = dto.description;
     if (dto.price !== undefined) product.price = dto.price;
     if (dto.rules !== undefined) product.rules = dto.rules;
-
     // 更新盲盒项（如果有传）
     if (dto.blindBoxItems) {
       product.blindBoxItems = dto.blindBoxItems.map(item => {
@@ -71,7 +87,6 @@ export class ProductService {
         return box;
       });
     }
-
     await this.productRepo.save(product);
     return { success: true };
   }
