@@ -85,4 +85,16 @@ export class DrawPositionService {
       message: `已重置 ${result.affected} 个盲盒状态`,
     };
   }
+  async resetDrawPositionByOrderId(orderId: number) {
+    const drawPosition = await this.drawPositionRepo.findOne({
+      where: { orderId },
+    });
+    if (!drawPosition) {
+      return { success: true, message: '无需修改盲盒状态' };
+    }
+    drawPosition.isDrawn = false;
+    drawPosition.orderId = null;
+    await this.drawPositionRepo.save(drawPosition);
+    return { success: true, message: '盲盒状态已重置' };
+  }
 }

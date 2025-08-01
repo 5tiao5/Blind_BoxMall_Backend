@@ -3,9 +3,7 @@ import { ProductEntity } from './product.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BlindBoxEntity } from './blindbox.entity';
@@ -21,8 +19,7 @@ export class OrderEntity {
   @ManyToOne(() => ProductEntity)
   product: ProductEntity;
 
-  @OneToOne(() => BlindBoxEntity)
-  @JoinColumn()
+  @ManyToOne(() => BlindBoxEntity)
   blindBox: BlindBoxEntity;
 
   @Column({ default: 'pending' })

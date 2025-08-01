@@ -36,11 +36,15 @@ export class DrawController {
       console.log(res + '创建订单之后');
       if (res.success) {
         const orderId = res.data.orderId;
-        return this.drawPositionService.markAsDrawn(
+        const setDraw = await this.drawPositionService.markAsDrawn(
           productId,
           indexes,
           orderId
         );
+        if (setDraw.success) {
+          return res;
+        }
+        return setDraw;
       } else {
         console.log(res);
       }

@@ -5,7 +5,8 @@ import { Repository } from 'typeorm';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { UserService } from './user.service';
 import { ProductService } from './product.service';
-import { BlindBoxService } from './blindbox.service'; // ✅ 使用你的 ProductService
+import { BlindBoxService } from './blindbox.service';
+import { DrawPositionService } from './drawposition.service'; // ✅ 使用你的 ProductService
 
 @Provide()
 export class OrderService {
@@ -15,7 +16,8 @@ export class OrderService {
   blindBoxService: BlindBoxService;
   @Inject()
   userService: UserService;
-
+  @Inject()
+  drawPositionService: DrawPositionService;
   @Inject()
   productService: ProductService; // ✅ 注入 ProductService
 
@@ -87,7 +89,7 @@ export class OrderService {
 
     order.status = 'cancelled';
     await this.orderRepo.save(order);
-
+    await this.drawPositionService.resetDrawPositionByOrderId(orderId);
     if (order.blindBox) {
       await this.blindBoxService.releaseBlindBox(order.blindBox);
     }
@@ -184,5 +186,57 @@ export class OrderService {
       order: { createTime: 'DESC' },
     });
     return { success: true, data: orders };
+  }
+  async refundOrder(orderId: number, userId: number) {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+      relations: ['user', 'product', 'blindBox'],
+    });
+    if (!order || order.user.id !== userId) {
+      return { success: false, message: '订单不存在或无权限' };
+    }
+    if (order.status !== 'paid') {
+      return { success: false, message: '订单不可退款（状态异常）' };
+    }
+    // 计算时间差
+    const createTime = new Date(order.createTime);
+    const payTime = new Date(order.payTime);
+    const diffInMs = payTime.getTime() - createTime.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+    if (diffInDays > 3) {
+      return { success: false, message: '已超过可退款时间（3天）' };
+    }
+    // 加回余额
+    const user = await this.userService.findById(userId);
+    user.balance += order.product.price;
+    await this.userService.updateUserInfo(userId, { balance: user.balance });
+    // 订单设为取消
+    order.status = 'cancelled';
+    await this.orderRepo.save(order);
+    // 释放盲盒状态
+    await this.drawPositionService.resetDrawPositionByOrderId(orderId);
+    if (order.blindBox) {
+      await this.blindBoxService.releaseBlindBox(order.blindBox);
+    }
+    return { success: true, message: '退款成功' };
+  }
+  async getUserOrdersPaged(userId: number, page: number, pageSize: number) {
+    const [data, total] = await this.orderRepo.findAndCount({
+      where: { user: { id: userId } },
+      order: { createTime: 'DESC' },
+      relations: ['product', 'blindBox'],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+
+    return {
+      success: true,
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 }
