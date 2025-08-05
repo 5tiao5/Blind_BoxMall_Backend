@@ -5,8 +5,8 @@ import {
   Inject,
   Param,
   Post,
-  Put,
-} from '@midwayjs/core';
+  Put, Query
+} from "@midwayjs/core";
 import { ProductService } from '../service/product.service';
 import { CreateProductDTO } from '../dto/create-product.dto';
 import { UpdateProductDTO } from '../dto/update-product.dto';
@@ -37,5 +37,9 @@ export class ProductController {
   @Get('/all')
   async getAll() {
     return { success: true, data: await this.productService.findAll() };
+  }
+  @Get('/search')
+  async search(@Query('keyword') keyword: string) {
+    return this.productService.searchProduct(keyword);
   }
 }

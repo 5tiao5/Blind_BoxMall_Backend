@@ -76,4 +76,9 @@ export class OrderController {
 
     return this.orderService.getUserOrdersPaged(userId, page, pageSize);
   }
+  @Post('/confirm/:id', { middleware: [JwtMiddleware] })
+  async confirmReceive(@Param('id') id: number) {
+    const userId = this.ctx.user.id;
+    return this.orderService.confirmOrderReceived(id, userId);
+  }
 }

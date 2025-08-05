@@ -2,7 +2,7 @@ import { Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { ProductEntity } from '../entity/product.entity';
 import { BlindBoxEntity } from '../entity/blindbox.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateProductDTO } from '../dto/create-product.dto';
 import { UpdateProductDTO } from '../dto/update-product.dto';
 import { DrawPositionEntity } from '../entity/drawposition.entitiy';
@@ -34,20 +34,20 @@ export class ProductService {
       return box;
     });
     // 创建 DrawPositionEntity 并赋值到 product.drawPositions 上
-    const drawPositions = data.blindBoxItems.map((item, index) => {
-      const drawPosition = new DrawPositionEntity();
-      drawPosition.product = product; // 直接将商品与 DrawPosition 关联
-      drawPosition.product_id = product.id; // 关联商品ID
-      drawPosition.boxIndex = index; // 当前是第几个盲盒（序号）
-      drawPosition.isDrawn = false; // 初始状态：未被抽中
-      return drawPosition;
-    });
-    // 将 drawPositions 赋值给 product.drawPositions
-    product.drawPositions = drawPositions;
+    // const drawPositions = data.blindBoxItems.map((item, index) => {
+    //   const drawPosition = new DrawPositionEntity();
+    //   drawPosition.product = product; // 直接将商品与 DrawPosition 关联
+    //   drawPosition.product_id = product.id; // 关联商品ID
+    //   drawPosition.boxIndex = index; // 当前是第几个盲盒（序号）
+    //   drawPosition.isDrawn = false; // 初始状态：未被抽中
+    //   return drawPosition;
+    // });
+    // // 将 drawPositions 赋值给 product.drawPositions
+    // product.drawPositions = drawPositions;
     // 保存商品及盲盒项
     const savedProduct = await this.productRepo.save(product);
     // 批量保存 DrawPositionEntity
-    await this.drawPositionRepo.save(drawPositions);
+    // await this.drawPositionRepo.save(drawPositions);
 
     return savedProduct;
   }
@@ -113,5 +113,28 @@ export class ProductService {
       },
     });
     return products;
+  }
+  async searchProduct(keyword: string) {
+    if (!keyword || keyword.trim() === '') {
+      return { success: false, message: '搜索关键词不能为空' };
+    }
+
+    const raw = await this.productRepo.find({
+      where: { name: Like(`%${keyword}%`) },
+      relations: ['blindBoxItems'],
+    });
+
+    // 再用 JS 判断双向包含
+    const all = await this.productRepo.find();
+    const result = all.filter(
+      product =>
+        product.name.includes(keyword) || keyword.includes(product.name)
+    );
+
+    // 合并去重（防止数据库模糊查出来的重复）
+    const map = new Map();
+    [...raw, ...result].forEach(item => map.set(item.id, item));
+
+    return { success: true, data: Array.from(map.values()) };
   }
 }

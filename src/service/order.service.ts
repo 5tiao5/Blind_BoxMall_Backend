@@ -1,7 +1,7 @@
 import { Provide, Inject } from '@midwayjs/core';
 import { OrderEntity } from '../entity/order.entity';
 import { BlindBoxEntity } from '../entity/blindbox.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { UserService } from './user.service';
 import { ProductService } from './product.service';
@@ -179,7 +179,37 @@ export class OrderService {
       })),
     };
   }
+  async autoCompleteOverdueOrders() {
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
+    // 查找所有状态为 'paid' 且 createTime 超过3天的订单
+    const overdueOrders = await this.orderRepo.find({
+      where: {
+        status: 'paid',
+        createTime: LessThan(threeDaysAgo),
+      },
+    });
+
+    if (overdueOrders.length === 0) {
+      return { success: true, message: '没有需要自动收货的订单' };
+    }
+
+    for (const order of overdueOrders) {
+      order.status = 'completed';
+      order.arriveTime = new Date();
+    }
+
+    await this.orderRepo.save(overdueOrders);
+
+    return {
+      success: true,
+      message: `已自动完成 ${overdueOrders.length} 个订单`,
+      updatedCount: overdueOrders.length,
+    };
+  }
+
   async getUserOrders(userId: number) {
+    await this.autoCompleteOverdueOrders();
     const orders = await this.orderRepo.find({
       where: { user: { id: userId } },
       relations: ['product', 'blindBox'],
@@ -222,6 +252,7 @@ export class OrderService {
     return { success: true, message: '退款成功' };
   }
   async getUserOrdersPaged(userId: number, page: number, pageSize: number) {
+    await this.autoCompleteOverdueOrders();
     const [data, total] = await this.orderRepo.findAndCount({
       where: { user: { id: userId } },
       order: { createTime: 'DESC' },
@@ -238,5 +269,28 @@ export class OrderService {
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     };
+  }
+  async confirmOrderReceived(orderId: number, userId: number) {
+    const order = await this.orderRepo.findOne({
+      where: {
+        id: orderId,
+        user: { id: userId },
+      },
+    });
+
+    if (!order) {
+      return { success: false, message: '订单不存在' };
+    }
+
+    if (order.status !== 'paid') {
+      return { success: false, message: '该订单未支付，无法确认收货' };
+    }
+
+    order.status = 'completed';
+    order.arriveTime = new Date();
+
+    await this.orderRepo.save(order);
+
+    return { success: true, message: '收货成功', data: order };
   }
 }
