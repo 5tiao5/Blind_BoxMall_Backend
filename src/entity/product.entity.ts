@@ -19,6 +19,8 @@ export class ProductEntity {
   // 一对多关系：一个商品对应多个盲盒项
   @OneToMany(() => BlindBoxEntity, item => item.product, { cascade: true })
   blindBoxItems: BlindBoxEntity[];
-  @OneToMany(() => DrawPositionEntity, position => position.product)
+  @OneToMany(() => DrawPositionEntity, position => position.product, {
+    cascade: true,
+  })
   drawPositions: DrawPositionEntity[];
 }

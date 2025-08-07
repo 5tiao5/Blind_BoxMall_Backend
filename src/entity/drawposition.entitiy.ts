@@ -19,9 +19,6 @@ export class DrawPositionEntity {
   @JoinColumn({ name: 'product_id' })
   product: ProductEntity;
 
-  @Column()
-  product_id: number;
-
   // 对应商品的第几个盲盒位置（如第5个格子）
   @Column()
   boxIndex: number;
