@@ -1,29 +1,28 @@
-# my_midway_project
+## 盲盒商城
 
-## QuickStart
+前端代码库地址:<https://github.com/5tiao5/Blind_BoxMall_Frontend>
 
-<!-- add docs here for user -->
+后端代码库地址:<https://github.com/5tiao5/Blind_BoxMall_Backend>
 
-see [midway docs][midway] for more detail.
+打包平台:Windows11
+node版本:v18.20.8
+**端口:localhost:7002**
+**没有基于 GitHub Actions 进行持续集成活动**
+运行index.js文件 然后网页访问<http://localhost:7002/index.html>
 
-### Development
+##### 使用指南如下:
+通过登录界面进入系统 登录界面新用户可以注册 注册后登录
 
-```bash
-$ npm i
-$ npm run dev
-$ open http://localhost:7002/
-```
+如果想管理商品 可以点击管理员登录 管理员身份码（密码）是**mmx-181314-1**（**演示视频里也有 1分48秒**）
+管理员可以创建 删除 修改商品及盲盒所有属性。
+还可以把抽走的盲盒全部重置为未抽走。
 
-### Deploy
+用户可以在抽盒机页面直接点击商品然后就可以抽奖 抽奖付款时会扣除余额  也可以使用搜索功能搜索商品。 在个人主页会显示个人信息及余额 注册的普通账户余额默认**1000元** 手机号为13333333333 密码为3的特殊账户余额管够 可以用于试验抽奖。
 
-```bash
-$ npm start
-```
+点击玩家秀可以看到已经发表了的玩家秀 右侧铅笔图标点击可以自己发表玩家秀。
+点击某个玩家秀会进入详情页 可以评论别人的玩家秀
+点击订单管理可以查看自己的所有订单的状态 已完成和已取消的订单不可更改 已付款这3天内可以退款否则状态变为已到达 也可以手动收货 未付款的可以取消也可以付款。
+付款后可以查看盲盒中了什么。
 
-### npm scripts
-
-- Use `npm run lint` to check code style.
-- Use `npm test` to run unit test.
-
-
-[midway]: https://midwayjs.org
+印象最深的内容是处理各种莫名其妙的报错
+对于课程web开发的改进建议是：感觉可以课时更长一点 这对于没有网页开发基础的同学来说会更友好。
