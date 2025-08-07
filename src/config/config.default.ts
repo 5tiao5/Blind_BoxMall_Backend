@@ -59,4 +59,20 @@ export default {
     whitelist: ['.png', '.jpg', '.jpeg'],
     fileSize: '5mb',
   },
+  staticFile: {
+    dirs: {
+      default: {
+        prefix: '/',
+        dir: 'public',
+      },
+      assets: {
+        prefix: '/assets',
+        dir: 'public/assets',
+      },
+      image: {
+        prefix: '/image',
+        dir: 'public/image',
+      },
+    },
+  },
 } as MidwayConfig;

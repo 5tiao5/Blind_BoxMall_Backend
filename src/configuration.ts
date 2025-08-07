@@ -3,7 +3,6 @@ import * as koa from '@midwayjs/koa';
 import * as validate from '@midwayjs/validate';
 import * as info from '@midwayjs/info';
 import * as orm from '@midwayjs/typeorm';
-import { join } from 'path';
 import * as jwt from '@midwayjs/jwt';
 import * as cors from '@koa/cors';
 // import { DefaultErrorFilter } from './filter/default.filter';
@@ -11,8 +10,10 @@ import * as cors from '@koa/cors';
 import * as oss from '@midwayjs/oss';
 import * as swagger from '@midwayjs/swagger';
 import * as upload from '@midwayjs/upload';
+import * as staticFile from '@midwayjs/static-file';
+import * as ConfigDefault from './config/config.default';
 //import { JwtMiddleware } from './middleware/jwt.middleware';
-
+//import { join } from 'path';
 @Configuration({
   imports: [
     koa,
@@ -29,8 +30,9 @@ import * as upload from '@midwayjs/upload';
     jwt,
     upload,
     oss,
+    staticFile,
   ],
-  importConfigs: [join(__dirname, './config')],
+  importConfigs: [{ default: ConfigDefault }],
 })
 export class MainConfiguration {
   @App('koa')
