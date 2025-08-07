@@ -1,4 +1,4 @@
-## 盲盒商城
+## 盲盒商城 by 牟明鑫
 
 前端代码库地址:<https://github.com/5tiao5/Blind_BoxMall_Frontend>
 
